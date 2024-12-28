@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+{% block content %}
+<br><br>
+{% if current_user.is_authenticated %}
+    <img src="../static/images/logo.png" alt="cargo-logo" width="100"><br><br>
+    <span class="badge rounded-pill text-bg-light">
+        <b>Current user</b>: {{current_user.email}}
+    </span>
+    <span class="badge rounded-pill text-bg-secondary">
+    <b>Role</b>: {% for role in current_user.roles%}
+                    {{role.name}}
+        {% endfor %}
+    </span>
+    <a href="/logout" class="badge rounded-pill text-bg-primary">Logout</a>
+{% else %}
+    <a href="/signup">Sign up</a> | <a href="/signin">Sign in</a>
+{% endif %}
+<br><hr><br>
+<a href="/customs"> Cancel & go back</a><br><br>
+<h2>Add New Good</h2>
+<form action="/goods" method="POST">
+    <div class="form-group">
+        <label for="name">Name <span style="color: red;">*</span></label>
+        <input type="text" class="form-control" id="name" name="name" required>
+    </div>
+    <div class="form-group">
+        <label for="container_id">Container ID <span style="color: red;">*</span></label>
+        <input type="number" class="form-control" id="container_id" name="container_id" required>
+    </div>
+    <div class="form-group">
+        <label for="quantity">Quantity</label>
+        <input type="number" class="form-control" id="quantity" name="quantity">
+    </div>
+    <div class="form-group">
+        <label for="opening_price">Opening Price <span style="color: red;">*</span></label>
+        <input type="number" step="0.01" class="form-control" id="opening_price" name="opening_price" required>
+    </div>
+    <div class="form-group">
+        <label for="status">Status <span style="color: red;">*</span></label>
+        <input type="text" class="form-control" id="status" name="status" required>
+    </div>
+    <div class="form-group">
+        <label for="guarantee">Guarantee <span style="color: red;">*</span></label>
+        <input type="text" class="form-control" id="guarantee" name="guarantee" required>
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea class="form-control" id="description" name="description"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="category">Category</label>
+        <input type="text" class="form-control" id="category" name="category">
+    </div>
+    <div class="form-group">
+        <label for="manufacturer_details">Manufacturer Details</label>
+        <textarea class="form-control" id="manufacturer_details" name="manufacturer_details"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="reason_for_detention">Reason for Detention</label>
+        <textarea class="form-control" id="reason_for_detention" name="reason_for_detention"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="volume">Volume</label>
+        <input type="number" step="0.01" class="form-control" id="volume" name="volume">
+    </div>
+    <br><br>
+    <button type="submit" class="btn btn-primary">Add Good</button> <br><br>
+</form>
+
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    {% if current_user.is_authenticated %}
+        <img src="../static/images/logo.png" alt="cargo-logo" width="100"><br><br>
+        <span class="badge rounded-pill text-bg-light">
+            <b>Current user</b>: {{current_user.email}}
+        </span>
+        <span class="badge rounded-pill text-bg-secondary">
+        <b>Role</b>: {% for role in current_user.roles%}
+                        {{role.name}}
+            {% endfor %}
+        </span>
+        <a href="/logout" class="badge rounded-pill text-bg-primary">Logout</a>
+    {% else %}
+        <a href="/signup">Sign up</a> | <a href="/signin">Sign in</a>
+    {% endif %}
+    <br><hr><br>
+    <h2>Current detained goods:</h2> <br>
+    <table class="table table-striped table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Container ID</th>
+                <th>Quantity</th>
+                <th>Opening Price</th>
+                <th>Status</th>
+                <th>Guarantee</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Manufacturer Details</th>
+                <th>Reason for Detention</th>
+                <th>Volume</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for good in goods %}
+            <tr>
+                <td>{{ good.id }}</td>
+                <td>{{ good.name }}</td>
+                <td>{{ good.container_id }}</td>
+                <td>{{ good.quantity }}</td>
+                <td>{{ good.opening_price }}</td>
+                <td>{{ good.status }}</td>
+                <td>{{ good.guarantee }}</td>
+                <td>{{ good.description }}</td>
+                <td>{{ good.category }}</td>
+                <td>{{ good.manufacturer_details }}</td>
+                <td>{{ good.reason_for_detention }}</td>
+                <td>{{ good.volume }}</td>
+                <td><a class="btn btn-light btn-sm" href="/goods/{{ good.id }}/new-auction" data-id="{{ good.id }}">Auction</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

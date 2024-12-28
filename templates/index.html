@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+<br><br>
+{% if current_user.is_authenticated %}
+    <b>Current user</b>: {{current_user.email}}
+    | <b>Role</b>: {% for role in current_user.roles%}
+                    {{role.name}}
+           {% endfor %} <br><br>
+    <!-- link for logging out -->
+    <a href="/logout">Logout</a>
+<!-- Show if user is not logged in -->
+{% else %}
+    <div class="text-center">
+        <img src="../static/images/logo.png" alt="cargo-icon" width="500" class="d-block mx-auto">
+        <div style="margin: 0 30vw;">
+            <p class="mt-5 text-body-secondary">Access your customs goods with ease. <br> Log in to buy detained items and manage your purchases securely.</p>
+            <hr>
+            <p class="mt-2 text-body-secondary">Already have an account?</p>
+            <a href="/signin" class="btn btn-light">Sign in</a>
+            <hr>
+            <p class="mt-2 text-body-secondary">Don't have an account yet?</p>
+            <a href="/signup" class="btn btn-outline-light">Sign up</a>
+        </div>
+    </div>
+{% endif %}
+<br><br>
+{% endblock %}
+
