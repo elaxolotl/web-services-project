@@ -1,107 +1,86 @@
-from flask import request, abort, Blueprint, jsonify, render_template
-from db import db
+from flask import request, abort, jsonify
+from flask_smorest import Blueprint
+from sqlalchemy.exc import SQLAlchemyError
+from flask.views import MethodView
 from models.goods import GoodModel
-from models.users import UserModel
+from models.bids import BidModel
+from schemas import GoodSchema
+from db import db
+from resources.users import token_required
 from flask_security import roles_accepted
+from sqlalchemy import case
+from datetime import datetime
 
-goods_bp = Blueprint('goods', __name__)
+goods_bp = Blueprint('goods', __name__, description="Operations on detained goods")
 
-@goods_bp.route("/new-good", methods=["GET"])
-@roles_accepted("Customs officer")
-def add_detained_good():
-    return render_template("new-good.html")
+@goods_bp.route("/goods")
+class Goods(MethodView):
+    
+    #add a new detained good
+    @token_required
+    @roles_accepted("Customs officer")
+    @goods_bp.arguments(GoodSchema)
+    @goods_bp.response(201, GoodSchema)
+    def post(self, good_data, current_user):
+        good_data = request.get_json()
+        if "expiry_date" in good_data and good_data["expiry_date"]:
+            good_data["expiry_date"] = datetime.strptime(good_data["expiry_date"], "%Y-%m-%d").date()
+        if good_data.get("perishable") and not good_data.get("expiry_date"):
+            return jsonify({"error":"Expiry date must be provided for perishable goods"}), 400
+        new_good = GoodModel(**good_data)
+        try:
+            db.session.add(new_good)
+            db.session.commit()
+        except SQLAlchemyError as e:
+            print("error: ", e)
+            abort(500, description="Error adding good")
+        return new_good
+    
+    #get all detained goods
+    @goods_bp.response(200, GoodSchema(many=True))
+    def get(self):
+        status_filter = request.args.get('status', None)
+        query = GoodModel.query.order_by(
+            case(
+                (GoodModel.perishable == True, 0),
+                else_=1
+            ).asc(),
+            GoodModel.expiry_date.asc().nulls_last(),
+            GoodModel.created_at.asc()
+        )
+        if status_filter and status_filter in ["detained", "on_sale", "sold", "no_commercial_value"]:
+            query = query.filter(GoodModel.status == status_filter)
+        return query.all()
 
-#add new good
-@goods_bp.route("/goods", methods=["POST"])
-@roles_accepted("Customs officer") 
-def post():
-    good_data = request.form.to_dict()
-    required_fields = [
-        "name", "container_id", "quantity", "opening_price",  
-        "status", "guarantee"
-    ]
 
-    missing_fields = [field for field in required_fields if field not in good_data]
+@goods_bp.route("/goods/<int:good_id>")
+class Good(MethodView):
+    
+    #see a specific detained good
+    @goods_bp.response(200, GoodSchema())
+    def get(self, good_id):
+        return GoodModel.query.get_or_404(good_id)
+    
 
-    if missing_fields:
-        abort(400, description="Missing fields: {}".format(", ".join(missing_fields)))
-        
-    def sanitize(value):
-        return value if value != '' else None
-
-    new_good = GoodModel(
-        name=good_data.get("name"),
-        container_id=good_data.get("container_id"),
-        quantity=sanitize(good_data.get("quantity")),
-        opening_price=sanitize(good_data.get("opening_price")),
-        status=good_data.get("status"),
-        guarantee=good_data.get("guarantee"),
-        description=sanitize(good_data.get("description")),
-        category=sanitize(good_data.get("category")),
-        manufacturer_details=sanitize(good_data.get("manufacturer_details")),
-        reason_for_detention=sanitize(good_data.get("reason_for_detention")),
-        volume=sanitize(good_data.get("volume"))
-    )
+    #delete a detained good
+    @token_required
+    @roles_accepted("Customs officer")
+    def delete(self, good_id):
+        good = GoodModel.query.get_or_404(good_id)
+        BidModel.query.filter_by(good_id=good_id).delete()     
+        db.session.delete(good)
+        db.session.commit()
+        return {"message": "Good deleted"}
     
-    db.session.add(new_good)
-    db.session.commit()
-    
-    goods=GoodModel.query.all()
-        
-    return render_template("goods.html", goods=goods)
-
-#get good by id
-@goods_bp.route("/goods/<int:good_id>", methods=["GET"])
-def get_by_id(good_id):
-    good = GoodModel.query.get(good_id)
-    if not good:
-        abort(404, description="Good not found")
-    
-    return jsonify(good.id), 200
-
-#see all goods
-@goods_bp.route("/goods", methods=["GET"])
-def get():
-    goods = GoodModel.query.all()
-    return render_template("goods.html", goods=goods)
-
-#delete good by id
-@goods_bp.route("/goods/<int:good_id>", methods=["DELETE"])
-@roles_accepted("Customs officer")
-def delete(good_id):
-    good = GoodModel.query.get(good_id)
-    if not good:
-        abort(404, description="Good not found")
-    
-    db.session.delete(good)
-    db.session.commit()
-    
-    return jsonify("Good deleted"), 200
-
-#update good by id
-@goods_bp.route("/goods/<int:good_id>", methods=["PUT"])
-@roles_accepted("Customs officer")
-def put(good_id):
-    data = request.get_json()
-    good = GoodModel.query.get(good_id)
-    
-    if not good:
-        abort(404, description="Good not found")
-    
-    if 'name' in data:
-        good.name = data['name']
-    if 'price' in data:
-        good.price = data['price']
-    if 'description' in data:
-        good.description = data['description']
-    if "opening_price" in data:
-        good.opening_price = data["opening_price"]
-    if "status" in data:
-        good.status = data["status"]
-    if "guarantee" in data:
-        good.guarantee = data["guarantee"]
-    
-    db.session.commit()
-    
-    return jsonify(good.name), 200
-    
+    #edit a detained good
+    @token_required
+    @roles_accepted("Customs officer")
+    def put(self, good_id):
+        good_data = request.get_json()
+        good = GoodModel.query.get_or_404(good_id)
+        schema = GoodSchema(partial=True)
+        updated_data=schema.load(good_data)
+        for key, value in updated_data.items():
+            setattr(good, key, value)
+        db.session.commit()
+        return {"message": "Detained good updated succesfully"}

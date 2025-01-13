@@ -1,82 +1,66 @@
-from flask import request, abort, Blueprint, jsonify, render_template
+from flask import request
+from flask_smorest import Blueprint
 from db import db
-from models.auctions import AuctionModel
-from models.goods import GoodModel
+from models.bids import BidModel
 from flask_security import roles_accepted
 from flask_login import current_user
+from flask_security import roles_accepted
+from flask.views import MethodView
+from schemas import BidSchema
+from resources.users import token_required
+from models.goods import GoodModel
+auctions_bp = Blueprint('auctions', __name__, description="Operations on auctions")
 
-auctions_bp = Blueprint('auctions', __name__)
-
-@auctions_bp.route("/goods/<int:good_id>/new-auction", methods=["GET"])
-@roles_accepted("Buyer")
-def add_auction(good_id):
-    msg=""
-    good = GoodModel.query.get(good_id)
-    if not good:
-        abort(404, description="Good not found")
-    return render_template("new-auction.html", good=good, msg=msg)
-
-
-#add new auction
-@auctions_bp.route("/goods/<int:good_id>/new-auction", methods=["POST"])
-@roles_accepted("Buyer")
-def post(good_id):
-    msg=""
-    data = request.form.to_dict()
-    if "value" not in data:
-        return render_template("new-auction.html", msg="Missing bet value", good=good)
-    data["value"] = float(data["value"])
-    good = GoodModel.query.get(good_id)
-    if not good:
-        return render_template("new-auction.html", msg="Good not found", good=good)
-    if data["value"] <= good.opening_price:
-        return render_template("new-auction.html", msg="Bet value must be greater than the opening price", good=good)
-    new_auction = AuctionModel(
-        value=data["value"],
-        good_id=good_id,
-        user_id=current_user.id
-    )
-    db.session.add(new_auction)
-    db.session.commit()
-    goods=GoodModel.query.all()
-    return render_template("buyer.html", goods=goods)
-
-#edit auction by id
-@auctions_bp.route("/auctions/<int:auction_id>", methods=["PUT"])
-@roles_accepted("Buyer")
-def put(auction_id):
-    data = request.get_json()
-    auction = AuctionModel.query.get(auction_id)
-    if not auction:
-        abort(404, description="Auction not found")
-    if "value" not in data:
-        abort(400, description="Missing bet value")
-    good = GoodModel.query.get(data["good_id"])
-    if not good:
-        abort(404, description="Good not found")
-    if data["value"] <= good.opening_value:
-        abort(400, description="Bet value must be greater than the opening value")
+@auctions_bp.route("/goods/<int:good_id>/bids")
+class Bids(MethodView):
     
-    auction.value = data["value"]
-    auction.user_id = data["user_id"]
-    auction.good_id = data["good_id"]
-    db.session.commit()
-    return jsonify(auction.id), 200
+    #place a bid on a specific good
+    @token_required
+    @roles_accepted("Buyer")
+    @auctions_bp.arguments(BidSchema)
+    @auctions_bp.response(201, BidSchema)
+    def post(self, good_id):
+        data = request.get_json()
+        good = GoodModel.query.get(good_id)
+        if not good:
+            return {"message": "Good not found."}, 404
+        if good["status"]!="on_sale":
+            return {"message": "This good is not on sale."}, 400
+        if data['value'] <= good.opening_price:
+            return {"message": f"Bid value must be higher than {good.opening_price}."}, 400
+        data['user_id']=current_user.id
+        data['good_id']=good_id
+        data['value']=data['value']
+        bid = BidModel(**data)
+        return bid
+    
+    #get all bids for a specific good ordered from highest to lowest
+    @token_required
+    @roles_accepted("Buyer")
+    @auctions_bp.response(200, BidSchema(many=True))
+    def get(self, good_id):
+        bids = BidModel.query.filter_by(good_id=good_id).order_by(BidModel.value.desc()).all()
+        if not bids:
+            return {"message": "No bids placed for this good."}, 404
+        return bids
 
-#delete auction by id
-@auctions_bp.route("/auctions/<int:auction_id>", methods=["DELETE"])
-@roles_accepted("buyer")
-def delete(auction_id):
-    auction = AuctionModel.query.get(auction_id)
-    if not auction:
-        abort(404, description="Auction not found")
-    db.session.delete(auction)
-    db.session.commit()
-    return jsonify("Auction deleted"), 200
 
-#see all auctions with the same good id
-@auctions_bp.route("/auctions/<int:good_id>", methods=["GET"])
-@roles_accepted("buyer", "owner", "customs")
-def get(good_id):
-    auctions = AuctionModel.query.filter_by(good_id=good_id).all()
-    return jsonify([auction.id for auction in auctions])
+@auctions_bp.route("/bids/<int:bid_id>")
+class Bid(MethodView):
+    
+    #see all the details of a specific bid
+    @token_required
+    @auctions_bp.response(200, BidSchema())
+    def get(self, bid_id):
+        return BidModel.query.get_or_404(bid_id)
+    
+    #delete a bid
+    @token_required
+    @roles_accepted("Buyer")
+    def delete(self, bid_id):
+        if current_user.id != BidModel.query.get_or_404(bid_id).user_id:
+            return {"message": "You can only delete your own bids."}, 400
+        bid = BidModel.query.get_or_404(bid_id)
+        db.session.delete(bid)
+        db.session.commit()
+        return {"message": "Bid deleted"}
