@@ -1,28 +1,166 @@
 {% extends "layout.html" %}
 {% block content %}
+<style>
+    .hero-section {
+        position: relative;
+        background-image: url('static/images/landing-hero.jpg');
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+    }
+
+    .hero-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        text-align: center;
+    }
+
+    .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+</style>
+
+<div class="hero-section">
+    <div class="hero-text">
+        <h1 class="text-shadow">Cargo API</h1>
+        <p class="text-shadow">Efficiently manage goods, securely conduct auctions, and stay ahead of the curve!</p>
+        <a href="#learn-more" class="btn btn-primary">Learn More</a>
+    </div>
+</div>
+
 <br><br>
-{% if current_user.is_authenticated %}
-    <b>Current user</b>: {{current_user.email}}
-    | <b>Role</b>: {% for role in current_user.roles%}
-                    {{role.name}}
-           {% endfor %} <br><br>
-    <!-- link for logging out -->
-    <a href="/logout">Logout</a>
-<!-- Show if user is not logged in -->
-{% else %}
-    <div class="text-center">
-        <img src="../static/images/logo.png" alt="cargo-icon" width="500" class="d-block mx-auto">
-        <div style="margin: 0 30vw;">
-            <p class="mt-5 text-body-secondary">Access your customs goods with ease. <br> Log in to buy detained items and manage your purchases securely.</p>
-            <hr>
-            <p class="mt-2 text-body-secondary">Already have an account?</p>
-            <a href="/signin" class="btn btn-light">Sign in</a>
-            <hr>
-            <p class="mt-2 text-body-secondary">Don't have an account yet?</p>
-            <a href="/signup" class="btn btn-outline-light">Sign up</a>
+
+<div class="text-left" id="learn-more">
+    <br><br>
+    <div class="container" style="margin-top: 5vh">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Efficient Management of Detained Goods and Auctions</h2>
+                <p>Cargo API provides a robust and secure platform for managing detained goods and conducting auctions
+                    with ease. Designed for customs officers and buyers, our API ensures seamless integration and
+                    efficient handling of goods, bids, and user roles.
+                    With our intuitive JSON API, you can effortlessly manage detained goods, place bids, and track
+                    auction progress. Whether you're a customs officer looking to add or update detained goods, or a
+                    buyer aiming to participate in auctions, our API offers a streamlined experience with clear and
+                    accessible data.</p>
+                <h3>Key Features:</h3>
+                <ul>
+                    <li>
+                        <b>Comprehensive Goods Management:</b> Add, update, and delete detained goods with detailed
+                        information, including perishable status, expiry dates, and financial details.
+                    </li>
+                    <li>
+                        <b>Secure Auction System:</b> Place bids on goods, view bid history, and manage your bids with
+                        role-based access control.
+                    </li>
+                    <li>
+                        <b>User Authentication and Role Management:</b> Secure user signup, login, and role-based access
+                        to ensure only authorized users can perform specific actions.
+                    </li>
+                    <li>
+                        <b>Real-Time Updates:</b> Stay informed with real-time updates on goods status, bid values, and
+                        auction outcomes.
+                    </li>
+                </ul>
+                <br><br>
+                <a type="button" class="btn btn-primary" href="/features">See Features</a>
+                <a type="button" class="btn btn-outline-light" href="/swagger-ui">Read the Docs</a>
+            </div>
+            <div class="col-md-6">
+                <h3>Sample detained good:</h3>
+                <pre class="bg-dark text-light p-3 rounded">
+                    <code class="language-json">
+                {
+                  "category": "Electronics",
+                  "container_id": "12345",
+                  "created_at": "2025-01-12T23:59:11.652781",
+                  "description": "This is a sample good description.",
+                  "expiry_date": "2025-01-01", 
+                  "guarantee": 50.0,
+                  "id": 4,
+                  "manufacturer_details": "Sample Manufacturer",
+                  "name": "Detained good name", 
+                  "opening_price": 100.5,
+                  "perishable": true,
+                  "reason_for_detention": "Sample reason for detention",
+                  "status": "on_sale",
+                  "store": null
+                }
+                    </code>
+                  </pre>
+            </div>
         </div>
     </div>
-{% endif %}
+    <hr>
+</div>
+
+<br><br>
+
+<div class="value">
+    <div class="container" style="margin-top: 5vh">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-inline-block p-3 bg-primary text-white rounded">
+                    <i class="bi bi-key-fill fs-3"></i>
+                </div><br><br>
+                <h3>Free API Access</h3>
+                <p>No Cost, No Barriers: Our API is completely free to use, making it accessible for developers,
+                    businesses, and individuals alike. No Hidden Fees: Enjoy all features without worrying about
+                    subscription costs or hidden charges.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="d-inline-block p-3 bg-primary text-white rounded">
+                    <i class="bi bi-person-fill fs-3"></i>
+                </div><br><br>
+                <h3>User-Friendly Integration</h3>
+                <p>Simple JSON API: Our API is designed with simplicity in mind, making it easy to integrate into your
+                    applications. Comprehensive Documentation: Clear and detailed documentation ensures a smooth
+                    onboarding process for developers.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="d-inline-block p-3 bg-primary text-white rounded">
+                    <i class="bi bi-lock-fill fs-3"></i>
+                </div><br><br>
+                <h3>Secure and Reliable</h3>
+                <p>Role-Based Access Control: Ensure only authorized users (customs officers, buyers) can perform
+                    specific actions. Token-Based Authentication: Secure your data with JWT (JSON Web Tokens) for safe
+                    and encrypted communication. Data Integrity: Built with Flask-SQLAlchemy, our API ensures reliable
+                    and consistent data handling.</p>
+            </div>
+        </div><br><br>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="d-inline-block p-3 bg-primary text-white rounded">
+                    <i class="bi bi-file-earmark-code-fill fs-3"></i>
+                </div><br><br>
+                <h3>Developer-Friendly</h3>
+                <p>OpenAPI Support: Explore and test endpoints using our built-in Swagger UI. Community Support: Join a
+                    growing community of developers and get help when you need it.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="d-inline-block p-3 bg-primary text-white rounded">
+                    <i class="bi bi-stars fs-3"></i>
+                </div><br><br>
+                <h3>Sustainability Focus</h3>
+                <p>Efficient Resource Management: Help reduce waste by managing perishable goods and ensuring timely
+                    auctions. Transparent Processes: Promote sustainability by providing clear and accessible data on
+                    detained goods.</p>
+            </div>
+            <div class="col-md-4">
+                <div class="d-inline-block p-3 bg-primary text-white rounded">
+                    <i class="bi bi-gear-fill fs-3"></i>
+                </div><br><br>
+                <h3>Continuous Improvement</h3>
+                <p>Regular Updates: We continuously improve our API based on user feedback and industry trends.
+                    Future-Proof: Stay ahead with new features and enhancements designed to meet evolving needs.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <br><br>
 {% endblock %}
-

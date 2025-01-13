@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    .hero-section {
+        position: relative;
+        background-image: url('static/images/features-hero.jpg');
+        background-size: cover;
+        background-position: center;
+        height: 100vh;
+    }
+
+    .hero-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        text-align: center;
+    }
+
+    .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+</style>
+
+<div class="hero-section">
+    <div class="hero-text">
+        <h1 class="text-shadow">API Features</h1>
+        <a href="#goods" class="btn btn-primary">Learn More</a>
+    </div>
+</div>
+
+<div id="goods" class="container py-4">
+    <div class="d-inline-block p-3 bg-primary text-white rounded">
+        <i class="bi bi-box-seam-fill" style="font-size: 2rem;"></i>
+    </div><br><br>
+    <h2>Managing Detained Goods</h2>
+    <p class="text-muted">
+        This API manages information about detained goods efficiently. Below is a brief explanation of each field in the schema to help understand its structure and functionality.
+    </p>
+    <p class="text-muted">
+        - <strong>id:</strong> A unique identifier for the detained good (read-only).<br>
+        - <strong>name:</strong> The name of the detained good (required).<br>
+        - <strong>container_id:</strong> The identifier of the container holding the good (required).<br>
+        - <strong>opening_price:</strong> The initial price of the good when listed for auction (required).<br>
+        - <strong>perishable:</strong> Indicates if the good is perishable (true/false) (required).<br>
+        - <strong>expiry_date:</strong> The expiry date of the good, if applicable (optional).<br>
+        - <strong>description:</strong> A detailed description of the detained good.<br>
+        - <strong>guarantee:</strong> The amount required for bidders to enter the auction (refunded after the auction).<br>
+        - <strong>manufacturer_details:</strong> Information about the manufacturer of the detained good.<br>
+        - <strong>reason_for_detention:</strong> The reason why the good was detained.<br>
+        - <strong>status:</strong> The status of the detained good (detained, on_sale, sold, or no_commercial_value).<br>
+        - <strong>store:</strong> The storage location of the detained good.<br>
+    </p>
+</div>
+<hr>
+
+<div id="automatic-auction" class="container py-4">
+    <div class="d-inline-block p-3 bg-primary text-white rounded">
+        <i class="bi bi-clock-history" style="font-size: 2rem;"></i>
+    </div><br><br>
+    <h2>Streamlined Auction Management with Automated Winner Assignment</h2>
+    <p class="text-muted">
+        Cargo API includes a daily task that automatically assigns auction winners, ensuring fairness and efficiency.
+        Every 24 hours, the task checks for auctions that have reached their due date. If an auction has ended, the
+        system automatically assigns the winner by selecting the highest bid. This feature eliminates manual
+        intervention and ensures timely resolutions.
+    </p>
+    <p class="text-muted">
+        For example, when an auction is created with a due date 24 hours in the future, the task runs at the scheduled
+        time, verifies the due date, and assigns the winner to the highest bidder. This process helps maintain fairness
+        and keeps operations running smoothly.
+    </p>
+</div>
+<hr>
+
+<div id="priority-search" class="container py-4">
+    <div class="d-inline-block p-3 bg-primary text-white rounded">
+        <i class="bi bi-list-ol" style="font-size: 2rem;"></i>
+    </div><br><br>
+    <h2>Priority Handling of Perishable Goods</h2>
+    <p class="text-muted">
+        Our system ensures efficient management of detained goods by prioritizing perishable items during searches. When
+        you search for detained goods, the system first displays perishable goods that are closest to their expiration
+        date. This feature helps prevent spoilage and ensures timely processing.
+    </p>
+    <p class="text-muted">
+        Non-perishable goods are displayed next, ordered by the date they were added to the system. This logical
+        prioritization helps customs officers efficiently handle goods based on urgency, reducing waste and improving
+        operational flow.
+    </p>
+</div>
+
+
+{% endblock %}

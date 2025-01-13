@@ -4,8 +4,9 @@ from db import db
 from resources.goods import goods_bp
 from resources.auctions import auctions_bp
 from resources.users import users_bp
+from resources.frontend import frontend_bp
 from flask_security import Security, SQLAlchemySessionUserDatastore
-from models.users import UserModel, Role, roles_users
+from models.users import UserModel, Role
 from models.goods import GoodModel
 from flask_jwt_extended import JWTManager
 import secrets
@@ -34,17 +35,15 @@ def create_app(db_url=None):
     jwt = JWTManager(app)
     
     db.init_app(app)
-    
+       
     api = Api(app)
     api.register_blueprint(goods_bp)
     api.register_blueprint(auctions_bp)
     api.register_blueprint(users_bp)
+    api.register_blueprint(frontend_bp, exclude_from_spec=True)
     
     with app.app_context():
-        UserModel.__table__.drop(db.engine)
-        GoodModel.__table__.drop(db.engine)
         db.create_all()
-        db.session.execute(roles_users.delete())
         db.session.commit()
 
         
@@ -53,6 +52,7 @@ def create_app(db_url=None):
     scheduler = APScheduler()
     scheduler.init_app(app)
     scheduler.start()
+    
     
     @scheduler.task('interval', id='my_job', hours=24)
     def check_due_dates():
