@@ -6,10 +6,12 @@ from models.goods import GoodModel
 from models.bids import BidModel
 from schemas import GoodSchema
 from db import db
-from resources.users import token_required
 from flask_security import roles_accepted
 from sqlalchemy import case
 from datetime import datetime
+from flask_login import current_user
+from flask_jwt_extended import jwt_required
+
 
 goods_bp = Blueprint('goods', __name__, description="Operations on detained goods")
 
@@ -17,12 +19,15 @@ goods_bp = Blueprint('goods', __name__, description="Operations on detained good
 class Goods(MethodView):
     
     #add a new detained good
-    @token_required
+    @goods_bp.doc(security=[{"BearerAuth": []}])
+    @jwt_required()
     @roles_accepted("Customs officer")
     @goods_bp.arguments(GoodSchema)
     @goods_bp.response(201, GoodSchema)
-    def post(self, good_data, current_user):
+    def post(self, good_data):
+        user = current_user
         good_data = request.get_json()
+        good_data["customs_officer_id"]=user.id
         if "expiry_date" in good_data and good_data["expiry_date"]:
             good_data["expiry_date"] = datetime.strptime(good_data["expiry_date"], "%Y-%m-%d").date()
         if good_data.get("perishable") and not good_data.get("expiry_date"):
@@ -52,7 +57,6 @@ class Goods(MethodView):
             query = query.filter(GoodModel.status == status_filter)
         return query.all()
 
-
 @goods_bp.route("/goods/<int:good_id>")
 class Good(MethodView):
     
@@ -61,11 +65,12 @@ class Good(MethodView):
     def get(self, good_id):
         return GoodModel.query.get_or_404(good_id)
     
-
     #delete a detained good
-    @token_required
+    @goods_bp.doc(security=[{"BearerAuth": []}])
     @roles_accepted("Customs officer")
     def delete(self, good_id):
+        jwt_required()
+        good_id = request.view_args['good_id']
         good = GoodModel.query.get_or_404(good_id)
         BidModel.query.filter_by(good_id=good_id).delete()     
         db.session.delete(good)
@@ -73,9 +78,10 @@ class Good(MethodView):
         return {"message": "Good deleted"}
     
     #edit a detained good
-    @token_required
+    @goods_bp.doc(security=[{"BearerAuth": []}])
     @roles_accepted("Customs officer")
     def put(self, good_id):
+        jwt_required()
         good_data = request.get_json()
         good = GoodModel.query.get_or_404(good_id)
         schema = GoodSchema(partial=True)

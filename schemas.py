@@ -19,16 +19,16 @@ class GoodSchema(Schema):
     store = fields.Str(missing=None)
     perishable = fields.Bool(required=True)
     expiry_date = fields.Date(missing=None, allow_none=True)
-    created_at = fields.DateTime(dump_only=True)
-    due_date = fields.DateTime(missing=None, allow_none=True)
-    customs_officer_id = fields.Int(required=True)
+    created_at = fields.DateTime(dump_only=True, timezone=True)
+    due_date = fields.DateTime(missing=None, allow_none=True, timezone=True)
+    customs_officer_id = fields.Int()
     winner_id = fields.Int(missing=None, allow_none=True)
 
     
 class UserSignupSchema(Schema):
     email = fields.Email(required=True, validate=validate.Length(min=1))
     password = fields.Str(required=True, validate=validate.Length(min=6))
-    role_id = fields.Int(required=True)
+    role_id = fields.Int(required=True, validate=validate.OneOf([1, 2, 3]))
     name = fields.Str(required=True)
     national_id = fields.Str(missing=None, validate=validate.Length(equal=8))
     fiscal_id = fields.Str(missing=None, validate=validate.Regexp(

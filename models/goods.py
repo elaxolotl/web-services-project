@@ -25,7 +25,7 @@ class GoodModel(db.Model):
     expiry_date = db.Column(db.Date, nullable=True)
     
     # Storage Details
-    store = db.Column(db.String, nullable=True)
+    store = db.Column(db.String(80), nullable=True)
     container_id = db.Column(db.String(80), nullable=False)
     
     # Timestamps
