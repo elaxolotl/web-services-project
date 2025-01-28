@@ -1,16 +1,15 @@
 from db import db
+from datetime import datetime
 
 class BidModel(db.Model):
     __tablename__ = 'bids'
 
     id = db.Column(db.Integer, primary_key=True)
     value = db.Column(db.Float, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    good_id = db.Column(db.Integer, db.ForeignKey('goods.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('buyer.user_id'), nullable=False)
+    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     good = db.relationship('GoodModel', back_populates='bids')
-    
-    __table_args__ = (
-        db.ForeignKeyConstraint(['user_id'], ['users.id']),
-        db.ForeignKeyConstraint(['good_id'], ['goods.id']),
-    )
+    auction = db.relationship('Auction', backref='bids')
+    buyer = db.relationship('Buyer', backref='bids')

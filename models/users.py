@@ -12,10 +12,8 @@ class UserModel(db.Model, UserMixin):
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String(255), nullable=False, server_default='')
     name = db.Column(db.String(80), nullable=False)
-    national_id = db.Column(db.Integer, unique=True, nullable=True)
-    fiscal_id = db.Column(db.String(8), unique=True, nullable=True)
-    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     active = db.Column(db.Boolean())
+    fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
 
     roles = db.relationship('Role', secondary=roles_users, backref='roled')
 
@@ -23,3 +21,10 @@ class Role(db.Model, RoleMixin):
     __tablename__ = 'role'
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), unique=True)
+    
+class Buyer(db.Model):
+    __tablename__ = 'buyer'
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    buyer_type = db.Column(db.String(80), nullable=False)
+    id_value = db.Column(db.String(80), nullable=False)
+    user = db.relationship('UserModel', backref='buyer')

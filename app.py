@@ -13,6 +13,27 @@ from flask_apscheduler import APScheduler
 from datetime import datetime
 from models.bids import BidModel
 from config import Config
+import asyncio 
+from notificationapi_python_server_sdk import notificationapi
+
+async def send_notification():
+    notificationapi.init(
+        "xt3qwed47a8vfyqdztff1qg973",  # clientId
+        "13izvwd9hda0txf2tkla7p9rklyrly8pcip88vrogn578nhi8rys7qxqrb" # clientSecret
+    )
+
+    await notificationapi.send({
+        "notificationId": "trove",
+        "user": {
+          "id": "youssefechadysfaxi@gmail.com",
+          "email": "youssefechadysfaxi@gmail.com",
+          "number": "+21620840515"
+        },
+        "mergeTags": {
+          "comment": "testComment",
+          "commentId": "testCommentId"
+        }
+    })
 
 secret_key = secrets.token_hex(32)
 
@@ -77,3 +98,5 @@ def create_database(app):
     with app.app_context():
         db.create_all()
         db.session.commit()
+        
+asyncio.run(send_notification())
