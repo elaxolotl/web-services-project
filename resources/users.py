@@ -1,7 +1,7 @@
 from flask import jsonify, current_app
 from flask_smorest import Blueprint
 from schemas import UserSignupSchema, UserLoginSchema
-from models.users import UserModel, Role
+from models.users import UserModel, Role, Buyer
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import db
 import datetime
@@ -19,15 +19,24 @@ def signup(data):
     data['email'] = data['email'].lower()
     if UserModel.query.filter_by(email=data['email']).first():
         return jsonify({"error": "User already exists"}), 400
-    if data["role_id"]==2:
-        if not data["national_id"] and not data["fiscal_id"]:
-            return jsonify({"error": "Please provide a national ID or a fiscal ID"}), 400
     data['password'] = generate_password_hash(data['password'], method='pbkdf2:sha256')
-    user = UserModel(email=data['email'].lower(), password=data['password'], name=data["name"], national_id=data['national_id'], fiscal_id=data['fiscal_id'], active=1)
+    user = UserModel(
+        email=data['email'],
+        password=data['password'],
+        name=data["name"],
+        active=1)
     role = Role.query.filter_by(id=data['role_id']).first()
     user.roles.append(role)
     db.session.add(user)
     db.session.commit()
+    
+    if data["role_id"]==2:
+        buyer = Buyer(user_id=user.id,
+                      buyer_type=data.get("buyer_type"),
+                      id_value=data["id_value"])
+    db.session.add(buyer)
+    db.session.commit()
+    
     login_user(user)
     expiration = datetime.datetime.utcnow()+datetime.timedelta(minutes=60)
     token = jwt.encode(

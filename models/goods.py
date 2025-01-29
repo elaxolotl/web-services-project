@@ -42,7 +42,6 @@ class GoodModel(db.Model):
     container = db.relationship('Container', backref='goods')
     storehouse = db.relationship('Storehouse', backref='goods')
     customs_officer = db.relationship('UserModel', backref='goods')
-    bids = db.relationship('BidModel', back_populates='good')
 
 class Auction(db.Model):
     __tablename__ = 'auction'

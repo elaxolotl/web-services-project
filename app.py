@@ -2,10 +2,10 @@ from flask import Flask, render_template
 from flask_smorest import Api
 from db import db
 from resources.goods import goods_bp
-from resources.auctions import auctions_bp
+from resources.bids import auctions_bp
 from resources.users import users_bp
 from flask_security import Security, SQLAlchemySessionUserDatastore
-from models.users import UserModel, Role, roles_users
+from models.users import UserModel, Role, roles_users, Buyer
 from models.goods import GoodModel
 from flask_jwt_extended import JWTManager
 import secrets
@@ -53,7 +53,6 @@ def create_app(db_url=None):
     
     create_database(app)
     
-    
     user_datastore = SQLAlchemySessionUserDatastore(db.session, UserModel, Role)
     security = Security(app, user_datastore)
     
@@ -96,6 +95,10 @@ def setup_security_schemes(api):
     
 def create_database(app):
     with app.app_context():
+        db.session.query(UserModel).delete()
+        db.session.query(GoodModel).delete()
+        db.session.query(Buyer).delete()
+        db.session.query(roles_users).delete()
         db.create_all()
         db.session.commit()
         

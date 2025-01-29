@@ -16,6 +16,7 @@ class UserModel(db.Model, UserMixin):
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
 
     roles = db.relationship('Role', secondary=roles_users, backref='roled')
+    buyer = db.relationship('Buyer', backref='user', uselist=False)
 
 class Role(db.Model, RoleMixin):
     __tablename__ = 'role'
@@ -27,4 +28,3 @@ class Buyer(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     buyer_type = db.Column(db.String(80), nullable=False)
     id_value = db.Column(db.String(80), nullable=False)
-    user = db.relationship('UserModel', backref='buyer')
