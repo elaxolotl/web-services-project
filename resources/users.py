@@ -24,6 +24,7 @@ def signup(data):
         email=data['email'],
         password=data['password'],
         name=data["name"],
+        number=data["number"],
         active=1)
     role = Role.query.filter_by(id=data['role_id']).first()
     user.roles.append(role)
@@ -34,8 +35,8 @@ def signup(data):
         buyer = Buyer(user_id=user.id,
                       buyer_type=data.get("buyer_type"),
                       id_value=data["id_value"])
-    db.session.add(buyer)
-    db.session.commit()
+        db.session.add(buyer)
+        db.session.commit()
     
     login_user(user)
     expiration = datetime.datetime.utcnow()+datetime.timedelta(minutes=60)

@@ -6,9 +6,9 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
 
-class Container(db.Model):
+class ContainerModel(db.Model):
     __tablename__ = 'container'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(80), primary_key=True)
     address = db.Column(db.String(200), nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
@@ -24,29 +24,18 @@ class GoodModel(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    container_id = db.Column(db.Integer, db.ForeignKey('container.id'), nullable=False)
-    customs_officer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    container_id = db.Column(db.String(80), db.ForeignKey('container.id'))
+    customs_officer_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     description = db.Column(db.String(200), nullable=True)
-    opening_price = db.Column(db.Float, nullable=False)
-    guarantee = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(80), nullable=False, default='detained')
+    status = db.Column(db.String(80), nullable=True, default='detained')
     reason_for_detention = db.Column(db.String(200), nullable=True)
     perishable = db.Column(db.Boolean, nullable=False)
     expiry_date = db.Column(db.Date, nullable=True)
-    storehouse_id = db.Column(db.Integer, db.ForeignKey('storehouse.id'), nullable=False)
+    storehouse_id = db.Column(db.Integer, db.ForeignKey('storehouse.id'), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    due_date = db.Column(db.DateTime, nullable=True)
     
     category = db.relationship('Category', backref='goods')
-    container = db.relationship('Container', backref='goods')
+    container = db.relationship('ContainerModel', backref='goods')
     storehouse = db.relationship('Storehouse', backref='goods')
-    customs_officer = db.relationship('UserModel', backref='goods')
-
-class Auction(db.Model):
-    __tablename__ = 'auction'
-    id = db.Column(db.Integer, primary_key=True)
-    status = db.Column(db.String(80), nullable=False)
-    end_date = db.Column(db.DateTime, nullable=False)
-    good_id = db.Column(db.Integer, db.ForeignKey('goods.id'), nullable=False)
-    good = db.relationship('GoodModel', backref='auction')
+    user = db.relationship('UserModel', backref='goods')

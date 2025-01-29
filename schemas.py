@@ -8,28 +8,23 @@ def validate_status(value):
 class GoodSchema(Schema):
     id = fields.Int(dump_only=True)
     name = fields.Str(required=True)
+    category_id = fields.Str(missing=None)
     container_id = fields.Str(required=True)
-    opening_price = fields.Float(required=True)
     status = fields.Str(required=True, validate=validate_status)
-    guarantee = fields.Float(required=True)
     description = fields.Str(missing=None)
-    category = fields.Str(missing=None)
-    manufacturer_details = fields.Str(missing=None)
     reason_for_detention = fields.Str(missing=None)
-    store = fields.Str(missing=None)
+    storehouse_id = fields.Int(missing=None)
     perishable = fields.Bool(required=True)
     expiry_date = fields.Date(missing=None, allow_none=True)
     created_at = fields.DateTime(dump_only=True, timezone=True)
-    due_date = fields.DateTime(missing=None, allow_none=True, timezone=True)
-    customs_officer_id = fields.Int()
-    winner_id = fields.Int(missing=None, allow_none=True)
-
+    user_id = fields.Int()
     
 class UserSignupSchema(Schema):
     email = fields.Email(required=True, validate=validate.Length(min=1))
     password = fields.Str(required=True, validate=validate.Length(min=6))
     role_id = fields.Int(required=True, validate=validate.OneOf([1, 2, 3]))
     name = fields.Str(required=True)
+    number = fields.Str(required=True, validate=validate.Length(equal=12))
     buyer_type = fields.Str(missing=None, validate=validate.OneOf(["individual", "company"]))
     id_value = fields.Str(missing=None, validate=validate.Length(equal=8))
     fs_uniquifier = fields.Str(dump_only=True)
@@ -49,3 +44,18 @@ class UserLoginSchema(Schema):
     
 class BidSchema(Schema):
     value = fields.Float(required=True)
+    
+class AuctionSchema(Schema):
+    opening_price = fields.Float(required=True)
+    guarantee = fields.Float(required=True)
+    end_date = fields.DateTime(required=True, timezone=True)
+    
+class ContainerSchema(Schema):
+    id = fields.Str(required=True, unique=True)
+    address = fields.Str(required=True)
+    latitude = fields.Float(required=True)
+    longitude = fields.Float(required=True)
+    
+class StoreHouseSchema(Schema):
+    name = fields.Str(required=True)
+    location = fields.Str(required=True)

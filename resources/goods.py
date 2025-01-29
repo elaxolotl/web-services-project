@@ -3,7 +3,7 @@ from flask_smorest import Blueprint
 from sqlalchemy.exc import SQLAlchemyError
 from flask.views import MethodView
 from models.goods import GoodModel
-from models.bids import BidModel
+from models.auctions import AuctionModel
 from schemas import GoodSchema
 from db import db
 from flask_security import roles_accepted
@@ -25,9 +25,8 @@ class Goods(MethodView):
     @goods_bp.arguments(GoodSchema)
     @goods_bp.response(201, GoodSchema)
     def post(self, good_data):
-        user = current_user
         good_data = request.get_json()
-        good_data["customs_officer_id"]=user.id
+        good_data["customs_officer_id"]=current_user.id
         if "expiry_date" in good_data and good_data["expiry_date"]:
             good_data["expiry_date"] = datetime.strptime(good_data["expiry_date"], "%Y-%m-%d").date()
         if good_data.get("perishable") and not good_data.get("expiry_date"):
@@ -72,7 +71,7 @@ class Good(MethodView):
         jwt_required()
         good_id = request.view_args['good_id']
         good = GoodModel.query.get_or_404(good_id)
-        BidModel.query.filter_by(good_id=good_id).delete()     
+        AuctionModel.query.filter_by(good_id=good_id).delete()     
         db.session.delete(good)
         db.session.commit()
         return {"message": "Good deleted"}

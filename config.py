@@ -2,7 +2,7 @@ import secrets
 import os
 
 class Config:
-    API_TITLE = "Cargo"
+    API_TITLE = "Gavel"
     API_VERSION = "v1"
     OPENAPI_VERSION = "3.0.3"
     OPENAPI_URL_PREFIX = "/"

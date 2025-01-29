@@ -12,6 +12,7 @@ class UserModel(db.Model, UserMixin):
     email = db.Column(db.String, unique=True)
     password = db.Column(db.String(255), nullable=False, server_default='')
     name = db.Column(db.String(80), nullable=False)
+    number = db.Column(db.String(80), nullable=False)
     active = db.Column(db.Boolean())
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
 
