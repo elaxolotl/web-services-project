@@ -24,6 +24,7 @@ secret_key = secrets.token_hex(32)
 
 def create_app(db_url=None):
     app = Flask(__name__)
+    app.run(host="0.0.0.0", port=5000)
     app.config.from_object(Config)
     
     jwt = JWTManager(app)
