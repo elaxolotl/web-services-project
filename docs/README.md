@@ -85,3 +85,6 @@ This project is licensed under the MIT License.
 ## Contact
 
 For any questions or inquiries, please contact the project maintainers at [youssefechadysfaxi@gmail.com].
+You can also find a detailed project report [here](\web_services_report.pdf).
+
+
