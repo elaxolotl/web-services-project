@@ -1,5 +1,5 @@
 # Gavel API
-<img src="../static/images/logo.png" alt="Gavel logo" width="500">
+<img src="../static/images/gavel-logo.png" alt="Gavel logo" width="500">
 
 ## Description
 Gavel API is designed to simplify the management of detained goods and auctions in Tunisian ports. It provides a secure, efficient, and user-friendly solution for customs officers, buyers, and businesses alike.
@@ -20,7 +20,7 @@ cd gavel
 
 ```bash
 python -m venv venv
-venv\Scripts\activate  # On Windows
+venv\Scripts\activate
 ```
 
 3. Install the dependencies:
