@@ -69,6 +69,10 @@ def create_app(db_url=None):
     @app.route('/features')
     def features_page():
         return render_template('features.html')
+    
+    @app.route('/docs')
+    def docs_page():
+        return render_template('docs.html')
 
     return app
 

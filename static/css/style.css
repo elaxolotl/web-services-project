@@ -8,7 +8,9 @@ body {
     margin: 0
 }
 
-body, nav, footer {
+body,
+nav,
+footer {
     width: 100%;
     box-sizing: border-box;
 }
@@ -21,7 +23,7 @@ a {
 nav {
     display: flex;
     flex-direction: row;
-    justify-content:space-between;
+    justify-content: space-between;
     align-items: center;
     padding: 2vh 4vw;
     gap: 2vw;
@@ -33,6 +35,7 @@ nav {
     overflow: hidden;
     z-index: 1000;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
     ul {
         display: flex;
         flex-direction: row;
@@ -54,7 +57,7 @@ nav {
     }
 }
 
-footer{
+footer {
     background-color: #e8ecf6;
     width: 100vw;
     display: flex;
@@ -62,39 +65,45 @@ footer{
     align-items: flex-start;
     justify-content: center;
     padding: 2rem 5rem;
-    .first-part{
+
+    .first-part {
         display: flex;
         flex-direction: row;
         align-items: center;
         gap: 1vw;
-        img{
+
+        img {
             width: 40px;
             height: auto;
             object-fit: contain;
         }
     }
-    hr{
+
+    hr {
         width: 100%;
         border: solid 1px #262E41;
         margin: 5vh 0;
     }
+
     .quick-links {
         display: flex;
         flex-direction: column;
-        ul{
+
+        ul {
             list-style: none;
             padding: 0;
             margin: 0;
             display: flex;
             flex-direction: row;
             gap: 1rem;
-            li{
+
+            li {
                 font-size: small;
                 color: #262E41;
                 opacity: 75%;
             }
         }
-        
+
     }
 }
 
@@ -244,6 +253,40 @@ footer{
                     opacity: 75%;
                 }
             }
+        }
+    }
+}
+
+.features {
+    margin: 20vh 10vw;
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+
+    h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #262E41;
+        margin-bottom: 5vh;
+    }
+
+    .feature-card {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 2vw;
+        img {
+            border-radius: 5px;
+            width: 35vw;
+            height: 50vh;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+        }
+        i{
+            background-color: #262E41;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 50%;
         }
     }
 }

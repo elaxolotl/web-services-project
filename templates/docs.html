@@ -1,0 +1,371 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="../static/css/docs-style.css">
+
+<div class="docs">
+    <aside class="sidebar">
+        <h2>Gavel API</h2>
+        <ul>
+            <li><a href="#overview">1. Overview</a>
+                <ul>
+                    <li><a href="#intro">1.1 Introduction</a></li>
+                    <li><a href="#features">1.2 Key features</a></li>
+                </ul>
+            </li>
+            <li><a href="#aut-sec">2. Authentication & security</a>
+                <ul>
+                    <li><a href="#auth">2.1 Authentication workflow</a></li>
+                    <li><a href="#roles">2.2 Roles & permissions</a></li>
+                    <li><a href="#sec">2.3 Security features</a></li>
+                </ul>
+            </li>
+            <li> <a href="#api-reference">3. API reference</a>
+                <ul>
+                    <li><a href="#user-management">3.1 User management</a></li>
+                    <li><a href="#detained-goods">3.2 Detained goods management</a></li>
+                    <li><a href="#auctions">3.3 Auction system</a></li>
+                </ul>
+            </li>
+
+            <li><a href="#filtering-sorting">4 Filtering & sorting</a></li>
+
+
+        </ul>
+    </aside>
+
+    <main class="content">
+
+        <section id="overview">
+            <h2>1. Overview</h2>
+            <section id="intro">
+                <h3>1.1 Introduction</h3>
+                <p>The Gavel API is a transparency-focused RESTful API designed to modernize and manage the auctioning
+                    of
+                    detained goods in customs, specifically tailored for ports. It digitizes a
+                    traditionally manual and opaque process, introducing real-time visibility, secure bidding, and
+                    automated
+                    workflows to ensure fairness and efficiency.</p>
+            </section>
+            <section id="features">
+                <h3>1.2 Key Features</h3>
+                <ul>
+                    <li><b>User Authentication & Roles:</b> Supports signup/login via JWT with clearly defined roles:
+                        customs officers, bidders, and goods owners.</li>
+                    <li><b>Goods Management:</b> Add, edit, view, and delete detained goods with rich metadata
+                        (perishability, expiry date, category, etc.).</li>
+                    <li><b>Auction System:</b> Create auctions, place bids, and automatically assign winners using a
+                        scheduled task.</li>
+                    <li><b>Bid Transparency:</b> All bids are publicly visible to eligible users, encouraging higher and
+                        fairer offers.</li>
+                    <li><b>Filtering & Sorting:</b> Easily search and prioritize listings (e.g., by perishability or
+                        auction status).</li>
+                </ul>
+            </section>
+        </section>
+
+        <section id="auth-sec">
+            <h2>2. Authentication & security</h2>
+            <p>The Gavel API uses JWT-based authentication combined with role-based access control (RBAC) to ensure that
+                all interactions are secure, permission-based, and auditable. Each user must authenticate before
+                accessing protected routes, and their access is restricted based on their assigned role.</p>
+            <section id="auth">
+                <h3>2.1 Authentication workflow</h3>
+                <ul>
+                    <li>User signup
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>POST /signup</code></pre>
+                            </li>
+                            <li>New users must register with an email, password, name, and role ID.</li>
+                            <li>Depending on the role, additional identifiers like national ID or fiscal ID may be
+                                required
+                                (for buyers only).</li>
+                        </ul>
+                    </li>
+                    <li>User login
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>POST /login</code></pre>
+                            </li>
+                            <li>Accepts email and password.</li>
+                            <li>Returns a JWT token which must be included in all future requests to protected endpoints
+                                using the <code>Authorization</code> header:
+                                <pre><code>Authorization: Bearer &lt;your_jwt_token&gt;</code></pre>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Token expiry
+                        <ul>
+                            <li>JWTs have a limited lifespan.</li>
+                            <li>Expired or invalid tokens will be rejected with appropriate error messages.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <section id="roles">
+                <h3>2.2 Roles and access control</h3>
+                <p>
+                    Access to Gavel API endpoints is restricted based on user roles. Each role has specific permissions
+                    that determine what actions the user can perform within the system.
+                </p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Role ID</th>
+                            <th>Permissions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Customs Officer</td>
+                            <td>1</td>
+                            <td>Full control over detained goods, create/edit/delete goods, manage auctions</td>
+                        </tr>
+                        <tr>
+                            <td>Buyer</td>
+                            <td>2</td>
+                            <td>View detained goods, place bids, view and delete own bids</td>
+                        </tr>
+                        <tr>
+                            <td>Owner</td>
+                            <td>3</td>
+                            <td>View owned goods (future support)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>
+                    Role-based access is enforced using decorators in the backend, ensuring that only users with the
+                    appropriate roles can access or modify protected resources.
+                </p>
+            </section>
+
+            <section id="sec">
+                <h3>2.3 Security Features</h3>
+                <p>
+                    The Gavel API implements several modern security practices to protect user data, ensure system
+                    integrity, and enforce access control.
+                </p>
+
+                <strong>Password Security</strong>
+                <ul>
+                    <li>Passwords are hashed using the <code>pbkdf2:sha256</code> algorithm before being stored in the
+                        database.</li>
+                    <li>Plaintext passwords are never saved or transmitted.</li>
+                </ul>
+
+                <strong>Token-Based Access</strong>
+                <ul>
+                    <li>Authentication is handled using JSON Web Tokens (JWT).</li>
+                    <li>Tokens are issued on successful login and must be included in the <code>Authorization</code>
+                        header for protected routes.</li>
+                    <li>Expired or invalid tokens are automatically rejected.</li>
+                </ul>
+
+                <strong>Input Validation</strong>
+                <ul>
+                    <li>All incoming requests are validated using strict Marshmallow schemas.</li>
+                    <li>Examples: <code>UserSignupSchema</code>, <code>UserLoginSchema</code>, <code>BidSchema</code>.
+                    </li>
+                    <li>Malformed or incomplete data is rejected before processing.</li>
+                </ul>
+
+                <strong>Role-Based Access Control</strong>
+                <ul>
+                    <li>Each route has access restrictions enforced by role-specific decorators.</li>
+                    <li>Only users with appropriate permissions can perform sensitive operations.</li>
+                </ul>
+
+                <strong>Session Security</strong>
+                <ul>
+                    <li>User sessions are managed using JWTs combined with Flask-Security mechanisms.</li>
+                    <li>This ensures secure interaction across multiple requests without storing session data
+                        server-side.</li>
+                </ul>
+            </section>
+
+
+        </section>
+
+        <section id="api-reference">
+            <h2>3. API Reference</h2>
+
+            <section id="user-management">
+                <h3>3.1 User Management</h3>
+                <ul>
+                    <li>User signup
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>POST /signup</code></pre>
+                            </li>
+                            <li>Registers a new user with email, password, name, and role ID.</li>
+                            <li>Buyers (role_id = 2) must also provide national ID and fiscal ID.</li>
+                        </ul>
+                    </li>
+                    <li>User login
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>POST /login</code></pre>
+                            </li>
+                            <li>Accepts email and password and returns a JWT token.</li>
+                            <li>The token must be included in protected requests via the <code>Authorization</code>
+                                header:
+                                <pre><code>Authorization: Bearer &lt;your_jwt_token&gt;</code></pre>
+                            </li>
+                        </ul>
+                    </li>
+                    <li>Get user info
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>GET /user</code></pre>
+                            </li>
+                            <li>Returns the logged-in user's email and role.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <section id="detained-goods">
+                <h3>3.2 Detained Goods Management</h3>
+                <ul>
+                    <li>Create a detained good
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>POST /goods</code></pre>
+                            </li>
+                            <li>Customs officers can create a new detained good using this endpoint.</li>
+                            <li>Requires a valid JWT and minimum fields: name, container_id, opening price, status,
+                                guarantee, perishable.</li>
+                        </ul>
+                    </li>
+                    <li>List all detained goods
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>GET /goods</code></pre>
+                            </li>
+                            <li>Returns a public list of all detained goods.</li>
+                            <li>Results are prioritized by perishability and expiry/due dates.</li>
+                        </ul>
+                    </li>
+                    <li>View a specific detained good
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>GET /goods/{goods_id}</code></pre>
+                            </li>
+                            <li>Returns details of the detained good by ID. No authentication required.</li>
+                        </ul>
+                    </li>
+                    <li>Edit a detained good
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>PUT /goods/{goods_id}</code></pre>
+                            </li>
+                            <li>Allows customs officers to update goods' data. Requires a JWT token.</li>
+                        </ul>
+                    </li>
+                    <li>Delete a detained good
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>DELETE /goods/{goods_id}</code></pre>
+                            </li>
+                            <li>Allows customs officers to delete a good. Requires a JWT token.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+
+            <section id="auctions">
+                <h3>3.3 Auction System</h3>
+                <ul>
+                    <li>Create an auction
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>POST /goods/{goods_id}/auctions</code></pre>
+                            </li>
+                            <li>Customs officers can start an auction for a good. Requires JWT token.</li>
+                        </ul>
+                    </li>
+                    <li>Place a bid
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>POST /goods/{goods_id}/bids</code></pre>
+                            </li>
+                            <li>Buyers can place a bid on a good currently on sale. JWT required.</li>
+                            <li>Bid value must be greater than the opening price.</li>
+                        </ul>
+                    </li>
+                    <li>List all bids for a good
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>GET /goods/{goods_id}/bids</code></pre>
+                            </li>
+                            <li>Returns all bids (highest to lowest) for a specific good. JWT required.</li>
+                        </ul>
+                    </li>
+                    <li>View a specific bid
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>GET /bids/{bid_id}</code></pre>
+                            </li>
+                            <li>Returns bid details by bid ID. JWT required.</li>
+                        </ul>
+                    </li>
+                    <li>Delete a bid
+                        <ul>
+                            <li>Endpoint:
+                                <pre><code>DELETE /bids/{bid_id}</code></pre>
+                            </li>
+                            <li>Buyers can delete their own bids. JWT required.</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+        <section id="filtering-sorting">
+            <h3>4 Filtering & Sorting</h3>
+            <ul>
+                <li>Goods listing priority
+                    <ul>
+                        <li>Endpoint:
+                            <pre><code>GET /goods</code></pre>
+                        </li>
+                        <li>All detained goods are returned in a prioritized order:</li>
+                        <li>
+                            <ul>
+                                <li>Perishable goods come first, sorted by <code>expiry_date</code> (earliest first).
+                                </li>
+                                <li>Non-perishable goods follow, sorted by <code>due_date</code>.</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li>Filtering by status
+                    <ul>
+                        <li>Endpoint:
+                            <pre><code>GET /goods?status=on%20sale</code></pre>
+                        </li>
+                        <li>You can filter goods based on their current status using the <code>status</code> query
+                            parameter.</li>
+                        <li>Available statuses include:
+                            <ul>
+                                <li><code>detained</code></li>
+                                <li><code>on sale</code></li>
+                                <li><code>sold</code></li>
+                                <li><code>no commercial value</code></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+    </main>
+</div>
+
+
+{% endblock %}
