@@ -24,7 +24,6 @@ secret_key = secrets.token_hex(32)
 
 def create_app(db_url=None):
     app = Flask(__name__)
-    app.run(host="0.0.0.0", port=5000)
     app.config.from_object(Config)
     
     jwt = JWTManager(app)
@@ -106,3 +105,7 @@ def populate_initial_data():
         db.session.add(new_category)
 
     db.session.commit()
+    
+if __name__ == "__main__":
+    app = create_app()
+    app.run(host="0.0.0.0", port=5000)
