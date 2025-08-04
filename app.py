@@ -22,7 +22,7 @@ import asyncio
 
 secret_key = secrets.token_hex(32)
 
-def create_app(db_url=None):
+def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
@@ -38,9 +38,7 @@ def create_app(db_url=None):
     api.register_blueprint(containers_bp)
     
     setup_security_schemes(api)
-    
-    create_database(app)
-    
+        
     user_datastore = SQLAlchemySessionUserDatastore(db.session, UserModel, Role)
     security = Security(app, user_datastore)
     
@@ -84,27 +82,6 @@ def setup_security_schemes(api):
     }
     api.spec.components.security_scheme("Bearer", api_key_scheme)
     api.spec.options["security"] = [{"Bearer": []}]
-    
-def create_database(app):
-    with app.app_context():
-        db.drop_all()
-        db.create_all()
-        populate_initial_data()
-        db.session.commit()
-
-def populate_initial_data():
-    roles = ['Customs officer', 'Buyer', 'Owner']
-    categories = ['Furniture', 'Cars', 'Clothes']
-
-    for role in roles:
-        new_role = Role(name=role)
-        db.session.add(new_role)
-
-    for category in categories:
-        new_category = Category(name=category)
-        db.session.add(new_category)
-
-    db.session.commit()
     
 
 app = create_app()

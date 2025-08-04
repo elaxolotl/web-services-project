@@ -1,5 +1,7 @@
 import secrets
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
 class Config:
     API_TITLE = "Gavel"
@@ -20,5 +22,6 @@ class Config:
     }
     OPENAPI_SECURITY = [{"BearerAuth": []}]
     SCHEDULER_API_ENABLED = True
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///data.db")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     
