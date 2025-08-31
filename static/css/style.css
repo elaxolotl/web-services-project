@@ -276,17 +276,114 @@ footer {
         justify-content: center;
         align-items: center;
         gap: 2vw;
+
         img {
             border-radius: 5px;
             width: 35vw;
             height: 50vh;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
         }
-        i{
+
+        i {
             background-color: #262E41;
             color: white;
             padding: 0.5rem;
             border-radius: 50%;
+        }
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .home {
+        overflow-x: hidden;
+        margin: 10vh 10vw;
+
+        .hero {
+            flex-direction: column !important;
+            gap: 2vw;
+
+            .hero-left {
+
+                .buttons {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 2vw;
+                    font-size: 0.72rem;
+                }
+            }
+
+        }
+
+        .learn-more {
+
+            .features {
+                justify-content: center;
+                gap: 2vw;
+                margin: 4vh 0;
+
+                li {
+                    width: 23vw;
+                    height: 15vh;
+                    font-size: 12px;
+
+                    .feature-notes {
+                        display: none;
+                    }
+                }
+            }
+        }
+
+        .features-section {
+
+            .feature-card {
+                flex-direction: column;
+                gap: 1vw;
+
+                img {
+                    width: 80vw;
+                    height: 30vh;
+                }
+            }
+        }
+    }
+
+    nav {
+
+        ul {
+            font-size: small;
+
+            li:not(:nth-last-child(-n+2)) {
+                display: none;
+            }
+        }
+    }
+
+    footer {
+        padding: 1rem 2rem;
+
+        hr {
+            margin: 1vh 0;
+        }
+
+        .quick-links {
+
+            ul {
+                gap: 0.5rem;
+
+            }
+
+        }
+    }
+
+    .features {
+
+        .feature-card {
+            flex-direction: column;
+
+            img {
+                width: 80vw;
+                height: 25vh;
+            }
         }
     }
 }

@@ -119,3 +119,58 @@ code {
         height: auto;
     }
 }
+
+/* Existing styles omitted for brevity... */
+
+@media (max-width: 768px) {
+    .docs {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        top: 0;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 600px) {
+    body {
+        font-size: 14px;
+    }
+
+    .sidebar h2 {
+        font-size: 18px;
+    }
+
+    .sidebar ul li a {
+        font-size: 14px;
+    }
+
+    .content {
+        padding: 15px;
+    }
+
+    pre {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    table {
+        font-size: 12px;
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    th, td {
+        padding: 6px;
+    }
+
+    /* Optional: collapse nested lists in sidebar */
+    .sidebar ul li ul {
+        margin-left: 15px;
+    }
+}
