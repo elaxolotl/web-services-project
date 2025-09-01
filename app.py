@@ -70,6 +70,14 @@ def create_app():
     @app.route('/docs')
     def docs_page():
         return render_template('docs.html')
+    
+    @app.route('/auth/signup')
+    def signup_page_ui():
+        return render_template('signup.html')
+
+    @app.route('/auth/login')
+    def login_page_ui():
+        return render_template('login.html')
 
     return app
 

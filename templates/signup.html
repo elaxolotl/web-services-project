@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% block content %}
+<main class="signup-page">
+    <h1>Sign up</h1>
+    <form id="signup-form">
+        <input name="email" type="email" placeholder="Your email ..." required><br>
+        <input name="password" type="password" placeholder="password ..." required><br>
+        <input name="name" type="text" placeholder="Your name ..." required><br>
+        <input name="number" type="text" placeholder="Phone number" required><br>
+        <select name="role_id" required>
+            <option value="1">Customs officer</option>
+            <option value="2">Buyer</option>
+            <option value="3">Owner</option>
+        </select><br>
+        <input name="buyer_type" type="text" placeholder=" (optional)"><br>
+        <input name="id_value" type="text" placeholder="id value ... (optional)"><br>
+        <button type="submit" class="primary-btn">Sign up</button>
+    </form>
+
+    <div id="msg"></div>
+
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = Object.fromEntries(new FormData(e.target).entries());
+            // convert numeric fields where needed
+            form.role_id = parseInt(form.role_id, 10);
+            if (form.role_id != 2) {
+                delete form.buyer_type;
+                delete form.id_value;
+            }
+            console.log(JSON.stringify(form));
+            try {
+                const res = await fetch('/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(form)
+                });
+                const data = await res.json();
+                let messages = '';
+                if (!res.ok) {
+                    for (const key in data.errors.json) {
+                        const issues = data.errors.json[key];
+                        for (const issue of issues) {
+                            messages += `${key} issue: ${issue}`;
+                        }
+                    }
+                    document.getElementById('msg').textContent = messages;
+                    return;
+                }
+                // store token and redirect if desired
+                localStorage.setItem('token', data.token);
+                window.location.href = '/';
+            } catch (err) {
+                document.getElementById('msg').textContent = 'Network error';
+            }
+        });
+    </script>
+</main>
+{% endblock %}

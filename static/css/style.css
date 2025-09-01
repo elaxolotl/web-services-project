@@ -293,6 +293,33 @@ footer {
     }
 }
 
+.signup-page{
+    h1{
+        color:#262E41;
+    }
+    margin: 15vh 30vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    form{
+        display: flex;
+        flex-direction: column;
+        gap: 0.5vh;
+        width: 100%;
+        input, select{
+            font-family: inherit;
+            padding: 2px 10px;
+            border-radius: 50px;
+            border: solid 1px #ccc;
+        }
+    }
+    #msg{
+        margin-top: 2vh;
+        color: red;
+    }
+}
+
 @media screen and (max-width: 600px) {
     .home {
         overflow-x: hidden;
